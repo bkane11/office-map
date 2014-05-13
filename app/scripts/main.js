@@ -236,6 +236,14 @@ app.testing = true;
 					.addTo(map);
 				map.removeLayer(f);
 			}else{
+				var info = floor7_info.filter(function(o){return o.Snum == d.properties.SNum})[0] || {},
+					name = '';
+				if(info['First Name'] && info['Last Name']){
+					name = '</br>' + info['First Name'] + ' ' + info['Last Name'];
+					if(info['Department'])
+						name += '</br>' + info['Department'];
+				}
+				
 				f.on('click', function(e){
 						var fun = function(a){
 							if(a.layer!=f){
@@ -248,7 +256,7 @@ app.testing = true;
 						floor.on('click', fun)
 					})
 					.on('mouseover', function(e){
-						$('.tip').html(d.properties.Layer + (d.properties.SNum ? ' ' + d.properties.SNum : ''));
+						$('.tip').html(d.properties.Layer + (d.properties.SNum ? ' ' + d.properties.SNum : '') + name);
 					}).on('mouseout', function(e){
 						$('.tip').html('');
 					}).on('add', function(e){
