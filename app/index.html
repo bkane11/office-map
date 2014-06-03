@@ -50,6 +50,12 @@
 	padding-top: 50px;
 	width: 100px;
 }
+.lcol div {
+	box-shadow: #aaa 10px 7px 10px;
+	background-color: #fff;
+	position: fixed;
+	left: 50px;
+}
 .content{
 	display: inline-block;
 	height: 100%;
@@ -57,6 +63,28 @@
 	width: 100px;
 }
 
+.inactive{
+	cursor:pointer;
+	/*margin: -20px 0 0 15px;*/
+}
+.seven{
+	z-index:5;
+	top: 180px;
+}
+.eight{
+	z-index:4;
+	top: 215px;
+}
+.nine{
+	z-index:3;
+	top: 250px;
+}
+
+.grayed(
+	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+	filter: gray; /* IE6-9 */
+	-webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+}
 </style>
 
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
@@ -67,15 +95,22 @@
 	<div class='spaceInfo'></div>
 </div>
 <div class='lcol'>
-	<div class='seven' title='7th floor'></div>
-	<div class='eight' title='8th floor'></div>
-	<div class='nine' title='9th floor'></div>
+	<div class='seven inactive' title='7th floor'></div>
+	<div class='eight inactive' title='8th floor'></div>
+	<div class='nine inactive' title='9th floor'></div>
 </div>
 <div class='content'></div>
 <script>
-d3.select('.layerHint, .spaceInfo').attr('height',50)
-
 var d;
+
+var prefix = "-webkit-transform" in document.body.style ? "-webkit-"
+    : "-moz-transform" in document.body.style ? "-moz-"
+    : "";
+	
+d3.selectAll('.lcol div')
+	.style(prefix+'transform','skew(-45deg)')
+	
+d3.selectAll('.layerHint, .spaceInfo').style('height',50)
 
 var width = 960,
 	thumbheight = 50, thumbwidth = thumbheight + 30,
@@ -87,7 +122,7 @@ var width = 960,
 	lcol = d3.select('.lcol');
 	
 function layerHint(e){
-	var group = d3.select(this),
+	var group = d3.select(e||this),
 		el = group.node(), layer;
 	if(infocus)
 		if(d3.select(el.ownerSVGElement).attr('floor')===infocus.attr('floor')){
@@ -105,39 +140,73 @@ function showInfo(e){
 		if(d3.select(selected.node().ownerSVGElement).attr('floor')===infocus.attr('floor'))
 			d3.select('.spaceInfo').html( selected.attr('SNum'));
 }
+
+function unHighlight(e){
+	var el = e || this;
+	if(el.parentNode.getAttribute('id')==='Collar_Features' || ['tspan', 'text'].indexOf(el.nodeName) !==-1)return
+    el = d3.select(el)
+	el.transition()
+		.style('opacity',0.3)
+}
+
+function doHighlight(e){
+    var el = d3.select(e||this);
+	el.transition()
+		.style('opacity', 1)
+	layerHint(e||this);
+}
+
+function setHighlight(){
+    var el = d3.select(this),
+        basecolor = el.style('fill');
+	unHighlight(this);
+}
 	
-function toggleHeight(e){
+function toggleActive(e){
 	var selected = d3.select(this), parent;
 	if(infocus){
 		if(selected.attr('infocus')) return
 		infocus
-			.attr('infocus',null)
-			.transition()
-			.style('height',thumbheight)
-			.style('width',thumbwidth)
+			.transition().duration(300)
+				.attr('infocus',null)
+				.style('height',thumbheight)
+				.style('width',thumbwidth)
 		parent = d3.select(infocus.node().parentNode)
-				.style('margin-left','0px')
-				.style('position','relative')
-//		d3.select('.'+infocus.attr('floor'))
-//			.node().appendChild(infocus.node())
+		parent.transition().duration(200)
+			.style('top', parent.attr('disabled-top'))
+			.style(prefix+'transform','skew(-45deg)')
+			
+		setTimeout(function(){
+			parent
+				.transition().duration(300)
+					.style('left','50px')
+					.attr('class', parent.attr('class') + ' inactive')
+					.attr('title', parent.attr('disabled-title'));
+		},305)
 	}
-	infocus = selected;
-	parent = d3.select(selected.node().parentNode)
-		.transition()
-		.style('margin-left','200px')
-		.style('position','fixed')
-		.duration(200)
 	setTimeout(function(){
-		selected
-			.attr('infocus',true)
-		// content.node().appendChild(selected.node()); 
-		// selected 
-			.transition()
-			//.style('margin-left',0)
-			.style('height',fullheight)
-			.style('width',fullwidth)
-			.attr('infocus',true)
-	}, 200)
+		infocus = selected;
+		parent = d3.select(selected.node().parentNode);
+		parent
+			.attr('disabled-top', parent.style('top'))
+			.attr('disabled-title', parent.attr('title'))
+			.attr('title', '')
+				.transition().duration(300)
+					.style('left','200px')
+		setTimeout(function(){
+			selected
+				.attr('infocus',true)
+				.transition()
+				.style('height',fullheight)
+				.style('width',fullwidth)
+				.attr('infocus',true)
+			parent
+				.transition()
+				.style('top','50px')
+				.attr('class', parent.attr('class').replace('inactive',''))
+				.style(prefix+'transform','skew(0deg)')
+		}, 305)
+	}, 400)
 }
 
 d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
@@ -148,13 +217,15 @@ d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
 	.style('height', thumbheight)
 	.style('width',thumbwidth)
 	.style('display','inline-block')
-	.on('click',toggleHeight)
+	.on('click',toggleActive)
 	.selectAll('g[id]').each(
 		function(){
 			var group = d3.select(this);
 			group.selectAll('*:not(g)')
-			.on('mouseover',layerHint)
+			.on('mouseover',doHighlight)
+			.on('mouseout',unHighlight)
 			.on('click', showInfo)
+			.each(setHighlight)
 		})
 });
 d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
@@ -165,13 +236,15 @@ d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
 	.style('height', thumbheight)
 	.style('width',thumbwidth)
 	.style('display','inline-block')
-	.on('click',toggleHeight)
+	.on('click',toggleActive)
 	.selectAll('g[id]').each(
 		function(){
 			var group = d3.select(this);
 			group.selectAll('*:not(g)')
-			.on('mouseover',layerHint)
+			.on('mouseover',doHighlight)
+			.on('mouseout',unHighlight)
 			.on('click', showInfo)
+			.each(setHighlight)
 		})
 });
 d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
@@ -182,13 +255,16 @@ d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
 	.style('height', thumbheight)
 	.style('width',thumbwidth)
 	.style('display','inline-block')
-	.on('click',toggleHeight)
+	.on('click',toggleActive)
 	.selectAll('g[id]').each(
 		function(){
 			var group = d3.select(this);
 			group.selectAll('*:not(g)')
-			.on('mouseover',layerHint)
+			.each(setHighlight)
+			.on('mouseover',doHighlight)
+			.on('mouseout',unHighlight)
 			.on('click', showInfo)
+			.each(setHighlight)
 		})
 });
 
