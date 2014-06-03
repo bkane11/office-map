@@ -1,4 +1,4 @@
-var floor = {
+{
 "type": "FeatureCollection",
                                                                                 
 "features": [

@@ -29,7 +29,7 @@ app.testing = true;
 
 // $(document).ready(function() {
     // var geometryserver = 'http://54.241.159.188/cloudgis/rest/services/Utilities/Geometry/GeometryServer/';
-    var agsDomain = 'http://10.21.4.27:6080',
+    var agsDomain = 'http://10.21.4.27',
         rest = ':6080/arcgis/rest/services',
 		restServiceURL = agsDomain + rest + 'Office_Map/Seventh_Floor/MapServer'
         esriAttribution = 'Tiles: &copy; Esri';

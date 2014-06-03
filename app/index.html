@@ -1,136 +1,198 @@
-<!doctype html>
-<html class="no-js">
-    <head>
-        <meta charset="utf-8">
-        <title>URS Oakland Office Map</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width">
-        <!-- configure add-to-homescreen -->
-        <meta name="apple-mobile-web-app-capable" content="yes" /> <!-- iOS -->
-        <meta name="mobile-web-app-capable" content="yes"> <!-- android -->
-        
-        <link rel="shortcut icon" href="/favicon.ico">
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
-        <!-- build:css styles/vendor.css -->
-        <!-- bower:css -->
-        <link rel="stylesheet" href="../bower_components/bootstrap/dist/css/bootstrap.css" />
-        <!-- endbower -->
-        <!-- endbuild -->
-        <!-- build:css(.tmp) styles/main.css -->
-		<!-- <link rel="stylesheet" href="styles/normalize.css" /> -->
-        <!-- <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" /> -->
-        <link rel="stylesheet" href="styles/main.css" />
-        <link rel="stylesheet" href="styles/map.css" />
-        <link rel="stylesheet" href="../bower_components/leaflet/dist/leaflet.css" />
-		
-        <!-- <link rel="stylesheet" href="styles/main.css"> -->
-		
-        <!-- endbuild -->
-        <!-- build:js scripts/vendor/modernizr.js -->
-        <script src="../bower_components/modernizr/modernizr.js"></script>
-        <!-- endbuild -->
+<!DOCTYPE html>
+<meta charset="utf-8">
 
-    </head>
-    <body>
-        <!--[if lte IE 8]>
-			<style>
-				#topbar{background-color: rgb(0, 72, 201)!important;}
-				.markerLabel.rotate90 span{width:50px!important;}
-				.markerLabel.rotate90{margin-left:50px!important;}
-			</style>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
+<style>
+.Offices {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: steelblue;
+}
+.Cubes {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: green;
+}
+.Bathrooms {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: yellow;
+}
+.Conference {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: yellow;
+}
+.Elevators {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: pink;
+}
+.Kitchen {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: red;
+}
+.Labs {
+	stroke: grey;
+	stroke-width: 2px;
+	fill: purple;
+}
+.topbar{
+	height:50px;
+	width: 100%;
+}
+.topbar div{
+	display: inline-block;
+}
+.lcol{
+	display: inline-block;
+	height: 100%;
+	padding-top: 50px;
+	width: 100px;
+}
+.content{
+	display: inline-block;
+	height: 100%;
+	padding-left:100px;
+	width: 100px;
+}
 
+</style>
 
-        <!-- MAP CONTAINTER -->
-        <div id="topbar" class="ontop trans">
-            <p class="title">URS Oakland<br/>Office Map</p>
-			<div class='tip ontop'></div>
-        </div>
-        <div id="controls" class='bouncefix noBounce'>
-                <div id="TOC" ></div>
-        </div>
-        <div id="mapStuff">
-            <div id="bordercontainer">
-                <div id="map"></div>
-            </div>
-        </div>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
-        <!-- LIGHTBOX PAGE -->
-        <div id="lightboxcontent" class="dropshadow">
-            <a title="Hide" class="infoCloser trans lightboxCloser closeParent">X</a>
-            <div id="lightboxStuff">
-                <h4 id="lightboxTitle"></h4>
-                <input type="text" id="search" class="search">
-                <button id="searchBTN">Search</button>
-                <div id="resultsTitle">Features found</div>
-            </div>
-            <div id="resultsContainer"></div>
-        </div>
-        
-       
-        
-        <!-- loading -->
-        <div id="loading">
-           <div>   
-               <div id="loadingText">loading...</div>
-               <div id="blockG_1" class="loading"></div>
-               <div id="blockG_2" class="loading"></div>
-               <div id="blockG_3" class="loading"></div>
-               <div id="blockG_4" class="loading"></div>
-           </div>  
-        </div>
-       <!-- end loading -->
+<body>
+<div class='topbar'>
+	<div class='layerHint'></div>
+	<div class='spaceInfo'></div>
+</div>
+<div class='lcol'>
+	<div class='seven' title='7th floor'></div>
+	<div class='eight' title='8th floor'></div>
+	<div class='nine' title='9th floor'></div>
+</div>
+<div class='content'></div>
+<script>
+d3.select('.layerHint, .spaceInfo').attr('height',50)
 
+var d;
 
-        <!-- build:js scripts/vendor.js -->
-        <!-- bower:js -->
-        <script src="../bower_components/jquery/dist/jquery.js"></script>
-        <script src="../bower_components/bootstrap/dist/js/bootstrap.js"></script>
-        <!-- endbower -->
-        <!-- endbuild -->
+var width = 960,
+	thumbheight = 50, thumbwidth = thumbheight + 30,
+	fullheight = thumbheight * 10, fullwidth = thumbwidth * 10, 
+	seven, eight, nine,
+	infocus,
+	body = d3.select('body'),
+	content = d3.select('.content'),
+	lcol = d3.select('.lcol');
+	
+function layerHint(e){
+	var group = d3.select(this),
+		el = group.node(), layer;
+	if(infocus)
+		if(d3.select(el.ownerSVGElement).attr('floor')===infocus.attr('floor')){
+			while(!layer){
+				el = el.parentNode;
+				layer = group.attr('id') || d3.select(el).attr('id');
+			}
+			d3.select('.layerHint').html( layer.replace(/_/g ,' '))
+		}
+}
 
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-40741733-3');ga('send','pageview');
-        </script>
+function showInfo(e){
+	var selected = d3.select(this);
+	if(infocus)
+		if(d3.select(selected.node().ownerSVGElement).attr('floor')===infocus.attr('floor'))
+			d3.select('.spaceInfo').html( selected.attr('SNum'));
+}
+	
+function toggleHeight(e){
+	var selected = d3.select(this), parent;
+	if(infocus){
+		if(selected.attr('infocus')) return
+		infocus
+			.attr('infocus',null)
+			.transition()
+			.style('height',thumbheight)
+			.style('width',thumbwidth)
+		parent = d3.select(infocus.node().parentNode)
+				.style('margin-left','0px')
+				.style('position','relative')
+//		d3.select('.'+infocus.attr('floor'))
+//			.node().appendChild(infocus.node())
+	}
+	infocus = selected;
+	parent = d3.select(selected.node().parentNode)
+		.transition()
+		.style('margin-left','200px')
+		.style('position','fixed')
+		.duration(200)
+	setTimeout(function(){
+		selected
+			.attr('infocus',true)
+		// content.node().appendChild(selected.node()); 
+		// selected 
+			.transition()
+			//.style('margin-left',0)
+			.style('height',fullheight)
+			.style('width',fullwidth)
+			.attr('infocus',true)
+	}, 200)
+}
 
-        <!-- build:js scripts/plugins.js -->
-        <script src="../bower_components/bootstrap/js/affix.js"></script>
-        <script src="../bower_components/bootstrap/js/alert.js"></script>
-        <script src="../bower_components/bootstrap/js/dropdown.js"></script>
-        <script src="../bower_components/bootstrap/js/tooltip.js"></script>
-        <script src="../bower_components/bootstrap/js/modal.js"></script>
-        <script src="../bower_components/bootstrap/js/transition.js"></script>
-        <script src="../bower_components/bootstrap/js/button.js"></script>
-        <script src="../bower_components/bootstrap/js/popover.js"></script>
-        <script src="../bower_components/bootstrap/js/carousel.js"></script>
-        <script src="../bower_components/bootstrap/js/scrollspy.js"></script>
-        <script src="../bower_components/bootstrap/js/collapse.js"></script>
-        <script src="../bower_components/bootstrap/js/tab.js"></script>	
-		
-		<script src="scripts/plugins.js"></script>
-		
-		<!-- <script type="text/javascript" src="http://jqueryrotate.googlecode.com/svn/trunk/jQueryRotate.js"></script> -->
+d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
+  var container = d3.select('.seven');
+  seven = d3.select(container.node().appendChild(xml.documentElement));
+  seven
+	.attr('floor', container.attr('class'))
+	.style('height', thumbheight)
+	.style('width',thumbwidth)
+	.style('display','inline-block')
+	.on('click',toggleHeight)
+	.selectAll('g[id]').each(
+		function(){
+			var group = d3.select(this);
+			group.selectAll('*:not(g)')
+			.on('mouseover',layerHint)
+			.on('click', showInfo)
+		})
+});
+d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
+  var container = d3.select('.eight');
+  eight = d3.select(container.node().appendChild(xml.documentElement));
+  eight
+	.attr('floor', container.attr('class'))
+	.style('height', thumbheight)
+	.style('width',thumbwidth)
+	.style('display','inline-block')
+	.on('click',toggleHeight)
+	.selectAll('g[id]').each(
+		function(){
+			var group = d3.select(this);
+			group.selectAll('*:not(g)')
+			.on('mouseover',layerHint)
+			.on('click', showInfo)
+		})
+});
+d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
+  var container = d3.select('.nine');
+  nine = d3.select(container.node().appendChild(xml.documentElement));
+  nine
+	.attr('floor', container.attr('class'))
+	.style('height', thumbheight)
+	.style('width',thumbwidth)
+	.style('display','inline-block')
+	.on('click',toggleHeight)
+	.selectAll('g[id]').each(
+		function(){
+			var group = d3.select(this);
+			group.selectAll('*:not(g)')
+			.on('mouseover',layerHint)
+			.on('click', showInfo)
+		})
+});
 
-        <!-- endbuild -->
-
-		<!-- 		<script type="text/javascript" src="http://demo.omnigon.com/christian_bovine/shamelesscity/js/jQueryRotate3.js"></script>
-		<script type="text/javascript" src="http://demo.omnigon.com/christian_bovine/shamelesscity/js/easing.js"></script>    -->        
-
-        <!-- build:js({app,.tmp}) scripts/main.js -->
-		<script src="scripts/7th_floor.js"></script>
-        <script src="../bower_components/leaflet/dist/leaflet.js"></script>
-		<script src="scripts/lvector.js"></script>
-        <script src="scripts/main.js"></script>
-		
-        <!-- <script src="scripts/main.js"></script> -->
-
-        <!-- endbuild -->
+	
+</script>
 </body>
 </html>
