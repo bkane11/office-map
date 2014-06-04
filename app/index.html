@@ -1,113 +1,159 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
+<head>
+	<meta charset="utf-8">
+	<title>DWR LEP - Woodland South</title>
+	<meta name="description" content="">
 
-<style>
-.Offices {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: steelblue;
-}
-.Cubes {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: green;
-}
-.Bathrooms {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: yellow;
-}
-.Conference {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: yellow;
-}
-.Elevators {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: pink;
-}
-.Kitchen {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: red;
-}
-.Labs {
-	stroke: grey;
-	stroke-width: 2px;
-	fill: purple;
-}
-.topbar{
-	height:50px;
-	width: 100%;
-}
-.topbar div{
-	display: inline-block;
-}
-.lcol{
-	display: inline-block;
-	height: 100%;
-	padding-top: 50px;
-	width: 100px;
-}
-.lcol div {
-	box-shadow: #aaa 10px 7px 10px;
-	background-color: #fff;
-	position: fixed;
-	left: 50px;
-}
-.content{
-	display: inline-block;
-	height: 100%;
-	padding-left:100px;
-	width: 100px;
-}
+	<!--The viewport meta tag is used to improve the presentation and behavior on iOS devices-->
+	<!-- <meta name="viewport" content="width=device-width"> -->
+	<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
 
-.inactive{
-	cursor:pointer;
-	/*margin: -20px 0 0 15px;*/
-}
-.seven{
-	z-index:5;
-	top: 180px;
-}
-.eight{
-	z-index:4;
-	top: 215px;
-}
-.nine{
-	z-index:3;
-	top: 250px;
-}
+	<!-- configure add-to-homescreen -->
+	<meta name="apple-mobile-web-app-capable" content="yes" /> <!-- iOS -->
+	<meta name="mobile-web-app-capable" content="yes"> <!-- android -->
 
-.grayed(
-	filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
-	filter: gray; /* IE6-9 */
-	-webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
-}
-</style>
+	<link rel="stylesheet" href="styles/main-d3.css"> 
+	<style>
+	.Offices {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: steelblue;
+	}
+	.Cubes {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: green;
+	}
+	.Bathrooms {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: yellow;
+	}
+	.Conference {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: yellow;
+	}
+	.Elevators {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: pink;
+	}
+	.Kitchen {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: red;
+	}
+	.Labs {
+		stroke: grey;
+		stroke-width: 2px;
+		fill: purple;
+	}
+	.topbar{
+		height:50px;
+		width: 100%;
+	}
+	.topbar div{
+		display: inline-block;
+	}
+	.lcol{
+		display: inline-block;
+		height: 100%;
+		padding-top: 50px;
+		width: 100px;
+	}
+	.controls{
+		top: 400px;
+		box-shadow: none!important;
+	}
+	.lcol > div {
+		box-shadow: #aaa 10px 7px 10px;
+		background-color: #fff;
+		position: fixed;
+		left: 50px;
+	}
+	.content{
+		display: inline-block;
+		height: 100%;
+		padding-left:100px;
+		width: 100px;
+	}
 
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	.inactive{
+		cursor:pointer;
+		/*margin: -20px 0 0 15px;*/
+	}
+	.seven{
+		z-index:5;
+		top: 180px;
+	}
+	.eight{
+		z-index:4;
+		top: 215px;
+	}
+	.nine{
+		z-index:3;
+		top: 250px;
+	}
+
+	.spaceInfo div{
+		display: none;
+	}
+
+	.grayed(
+		filter: url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\'><filter id=\'grayscale\'><feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/></filter></svg>#grayscale"); /* Firefox 10+, Firefox on Android */
+		filter: gray; /* IE6-9 */
+		-webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+	}
+
+	</style>
+
+	<script src="scripts\plugins.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+</head>
 
 <body>
-<div class='topbar'>
-	<div class='layerHint'></div>
-	<div class='spaceInfo'></div>
+ <div id="topbar" class='topbar ontop fullwidth'>
+			<!-- <a href='' target='_blank'>
+			</a> -->
+			<img id="logo" src="images/urs-logo.png"/>
+            <p class="title trans">
+				URS Oakland
+				<br/>
+				<span>Office Map</span>
+				<br/>
+				<span class='trans about text'>Click or mouseover spaces for details.  Choose floor plan from stack on the left.</span>
+				<span title="hide info" class="about info">x</span>
+			</p>
 </div>
 <div class='lcol'>
 	<div class='seven inactive' title='7th floor'></div>
 	<div class='eight inactive' title='8th floor'></div>
 	<div class='nine inactive' title='9th floor'></div>
+	
+	<div class='controls'>
+		<div class='layerHint'></div>
+		<div class='spaceInfo'>
+			<div class='name'></div>
+			<div class='extension'></div>
+			<div class='snum'></div>
+			<div class='department'></div>
+		</div>
+	</div>
 </div>
 <div class='content'></div>
 <script>
 var d;
 
+var floor7_info = [{"Last Name": "Last Name", "First Name": "First Name", "Extension": "Extension", "Snum": "Snum", "Department": "Department", "Photo": "Photo", "Card": "Card"}, {"Last Name": "Buchwald", "First Name": "Alexis", "Extension": 3197, "Snum": 703, "Department": "GIS", "Photo": "Alexis_Buchwald.jpg", "Card": "DataMerge14.jpg"}, {"Last Name": "Kubokawa", "First Name": "Ashleigh", "Extension": 1789, "Snum": 709, "Department": "GIS", "Photo": "Ashleigh_Kubokawa.jpg", "Card": "DataMerge15.jpg"}, {"Last Name": "Kane", "First Name": "Ben", "Extension": 3118, "Snum": 776, "Department": "GIS", "Photo": "ben_kane.jpg", "Card": "DataMerge16.jpg"}, {"Last Name": "Greer", "First Name": "Brian", "Extension": 3279, "Snum": 711, "Department": "GIS", "Photo": "Brian_Greer.JPG", "Card": "DataMerge17.jpg"}, {"Last Name": "Wright", "First Name": "Doug", "Extension": 3253, "Snum": 756, "Department": "GIS", "Photo": "DougWright.jpg", "Card": "DataMerge18.jpg"}, {"Last Name": "Popuch", "First Name": "Eli", "Extension": 1705, "Snum": 702, "Department": "GIS", "Photo": "eli_popuch.jpg", "Card": "DataMerge19.jpg"}, {"Last Name": "Bashir", "First Name": "Fozia", "Extension": 3142, "Snum": 705, "Department": "GIS", "Photo": "fozia_bashir.jpg", "Card": "DataMerge20.jpg"}, {"Last Name": "Parteno", "First Name": "Jessica", "Extension": 1752, "Snum": 714, "Department": "GIS", "Photo": "Jessie_Parteno.jpg", "Card": "DataMerge21.jpg"}, {"Last Name": "Abbors", "First Name": "Rose", "Extension": 3015, "Snum": 708, "Department": "GIS", "Photo": "rose_abbors.jpg", "Card": "DataMerge22.jpg"}, {"Last Name": "Lopes", "First Name": "Tomas", "Extension": 1734, "Snum": 749, "Department": "GIS", "Photo": "Tom_Lopes.jpg", "Card": "DataMerge23.jpg"}, {"Last Name": "Kirkendall", "First Name": "Whitney", "Extension": 1793, "Snum": 706, "Department": "GIS", "Photo": "whitney_kirkendall.jpg", "Card": "DataMerge24.jpg"}, {"Last Name": "Voge", "First Name": "Maianna", "Extension": 1760, "Snum": 712, "Department": "GIS", "Photo": "Maianna_Voge.jpg"}]
+
 var prefix = "-webkit-transform" in document.body.style ? "-webkit-"
     : "-moz-transform" in document.body.style ? "-moz-"
     : "";
+
+var selected, active, selectedspace;
 	
-d3.selectAll('.lcol div')
+d3.selectAll('.lcol .inactive')
 	.style(prefix+'transform','skew(-45deg)')
 	
 d3.selectAll('.layerHint, .spaceInfo').style('height',50)
@@ -121,39 +167,116 @@ var width = 960,
 	content = d3.select('.content'),
 	lcol = d3.select('.lcol');
 	
-function layerHint(e){
+d3.selectAll('.about').on('click',function(){
+	var tb = d3.select('#topbar'),
+		info = d3.select('.about.info'),
+		text = d3.select('.about.text');
+	if( tb.style('width')!=='500px')
+		tb.transition()
+			.style('width','500px'),
+		info.html('i')
+			.attr('title','hide info')
+			.transition().duration(200)
+				.style('line-height','17px')
+				.style('width','24px'),
+		setTimeout( function(){text.style('display','none')},100);
+	else
+		tb.transition().style('width',body.style('width')),
+		info.html('x')
+			.attr('title','show info')
+			.transition().duration(200)
+				.style('line-height','15px')
+				.style('width','25px'),
+		setTimeout( function(){text.style('display','inline-block')},200);
+})
+
+function depersist(){
+	var el;
+	if(selected) el = selected.node();
+	d3.selectAll('.persist')
+		.each(function(){
+			var el = d3.select(this);
+			el.attr('class', el.attr('class').replace('persist', ''));
+		})
+	selected = null;
+	if(el)
+		unHighlight(el, true)
+}
+
+function hidelayerHint(){
+	return d3.selectAll('.layerHint').html('');
+}
+function hidespaceInfo(){
+	return d3.selectAll('.spaceInfo div').transition().style('display', 'none');
+}
+
+function layerHint(e, show){
 	var group = d3.select(e||this),
 		el = group.node(), layer;
-	if(infocus)
+	if(infocus && (!selected || show))
 		if(d3.select(el.ownerSVGElement).attr('floor')===infocus.attr('floor')){
 			while(!layer){
 				el = el.parentNode;
 				layer = group.attr('id') || d3.select(el).attr('id');
 			}
-			d3.select('.layerHint').html( layer.replace(/_/g ,' '))
+			if(!show)
+				hidespaceInfo()
+			if( show && layer!=='Collar_Features' ) d3.select('.layerHint').html(layer.replace(/_/g ,' '))
+			else hidelayerHint()
+			//d3.select('.layerHint').html( ( show && layer!=='Collar_Features' ) ? layer.replace(/_/g ,' ') : '')
 		}
 }
 
-function showInfo(e){
-	var selected = d3.select(this);
-	if(infocus)
-		if(d3.select(selected.node().ownerSVGElement).attr('floor')===infocus.attr('floor'))
-			d3.select('.spaceInfo').html( selected.attr('SNum'));
+function showInfo(e, persist){
+	var sel = d3.select(e||this),
+		snum = sel.attr('SNum'),
+		item, html;
+	if(persist)
+		depersist(),
+		selected = sel		
+	if(infocus && (!selected || persist)){
+		doHighlight(sel.node(), persist);
+		if(d3.select(sel.node().ownerSVGElement).attr('floor')===infocus.attr('floor')){
+			item = floor7_info.filter(function(a){
+				return a.Snum == snum 
+			})
+			if(item = item[0]){
+				sel.style('cursor', 'pointer')
+				d3.select('.spaceInfo .name').html(item['First Name'] + ' ' + item['Last Name'])
+				d3.select('.spaceInfo .extension').html('ext: ' + item.Extension)
+				d3.select('.spaceInfo .snum').html('S'+ snum)
+				d3.select('.spaceInfo .department').html(item.Department)
+				d3.selectAll('.spaceInfo div')
+					.transition().style('display', 'block')
+					.each(function(){
+						var el = d3.select(this);
+					})
+				hidelayerHint();
+				return sel
+			}else
+				layerHint(sel.node(), true)
+				
+		}
+	}
 }
 
-function unHighlight(e){
+function unHighlight(e,hint){
+	if(selected) return
+
 	var el = e || this;
 	if(el.parentNode.getAttribute('id')==='Collar_Features' || ['tspan', 'text'].indexOf(el.nodeName) !==-1)return
     el = d3.select(el)
 	el.transition()
 		.style('opacity',0.3)
+	if(!!hint)
+		layerHint(e||this, false);
 }
 
-function doHighlight(e){
+function doHighlight(e,go){
     var el = d3.select(e||this);
+	if(selected && !go) return
 	el.transition()
 		.style('opacity', 1)
-	layerHint(e||this);
 }
 
 function setHighlight(){
@@ -163,9 +286,14 @@ function setHighlight(){
 }
 	
 function toggleActive(e){
-	var selected = d3.select(this), parent;
+	if(active)
+		if(active==this) return;
+	depersist();
+
+	active = this;
+	var sel = d3.select(this), parent;
 	if(infocus){
-		if(selected.attr('infocus')) return
+		if(sel.attr('infocus')) return
 		infocus
 			.transition().duration(300)
 				.attr('infocus',null)
@@ -185,8 +313,8 @@ function toggleActive(e){
 		},305)
 	}
 	setTimeout(function(){
-		infocus = selected;
-		parent = d3.select(selected.node().parentNode);
+		infocus = sel;
+		parent = d3.select(sel.node().parentNode);
 		parent
 			.attr('disabled-top', parent.style('top'))
 			.attr('disabled-title', parent.attr('title'))
@@ -194,7 +322,7 @@ function toggleActive(e){
 				.transition().duration(300)
 					.style('left','200px')
 		setTimeout(function(){
-			selected
+			sel
 				.attr('infocus',true)
 				.transition()
 				.style('height',fullheight)
@@ -202,7 +330,7 @@ function toggleActive(e){
 				.attr('infocus',true)
 			parent
 				.transition()
-				.style('top','50px')
+				.style('top','180px')
 				.attr('class', parent.attr('class').replace('inactive',''))
 				.style(prefix+'transform','skew(0deg)')
 		}, 305)
@@ -222,7 +350,7 @@ d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
 		function(){
 			var group = d3.select(this);
 			group.selectAll('*:not(g)')
-			.on('mouseover',doHighlight)
+			.on('mouseover', function(){doHighlight(this); showInfo(this, false)})
 			.on('mouseout',unHighlight)
 			.on('click', showInfo)
 			.each(setHighlight)
@@ -241,7 +369,7 @@ d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
 		function(){
 			var group = d3.select(this);
 			group.selectAll('*:not(g)')
-			.on('mouseover',doHighlight)
+			.on('mouseover', function(){doHighlight(this); showInfo(this, false)})
 			.on('mouseout',unHighlight)
 			.on('click', showInfo)
 			.each(setHighlight)
@@ -261,13 +389,18 @@ d3.xml("svg/7th_Floor.svg", "image/svg+xml", function(xml) {
 			var group = d3.select(this);
 			group.selectAll('*:not(g)')
 			.each(setHighlight)
-			.on('mouseover',doHighlight)
+			.on('mouseover', function(){doHighlight(this); showInfo(this, false)})
 			.on('mouseout',unHighlight)
 			.on('click', showInfo)
 			.each(setHighlight)
 		})
 });
 
+body.on('contextmenu', depersist)
+window.onkeyup = function(e){
+	if(e.keyCode === 27)
+		depersist()
+}
 	
 </script>
 </body>
